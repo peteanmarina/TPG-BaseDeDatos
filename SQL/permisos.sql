@@ -1,32 +1,28 @@
--- Crear Roles
 CREATE ROLE Administrador;
 CREATE ROLE Vendedor;
 CREATE ROLE Comprador;
 
--- Permisos para el Administrador
-GRANT ALL PRIVILEGES ON *.* TO Administrador;
+GRANT ALL PRIVILEGES ON *.* TO Administrador WITH GRANT OPTION;
 
--- Permisos para el Vendedor
-GRANT SELECT, INSERT, UPDATE ON Producto TO Vendedor;
-GRANT SELECT, INSERT, UPDATE ON Pedido TO Vendedor;
-GRANT SELECT ON Usuario TO Vendedor;
+GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Producto TO Vendedor;
+GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Categoria TO Vendedor;
 
--- Permisos para el Comprador
-GRANT SELECT ON Producto TO Comprador;
-GRANT INSERT, UPDATE ON Pedido TO Comprador;
-GRANT SELECT ON Envio TO Comprador;
+GRANT SELECT ON TiendaOnline.Producto TO Comprador;
+GRANT INSERT, UPDATE ON TiendaOnline.Venta TO Comprador;
+GRANT SELECT, UPDATE ON TiendaOnline.Envio TO Comprador;
 
--- Crear Usuarios
 CREATE USER 'admin'@'%' IDENTIFIED BY 'clave_admin';
 CREATE USER 'vendedor'@'%' IDENTIFIED BY 'clave_vendedor';
 CREATE USER 'comprador'@'%' IDENTIFIED BY 'clave_comprador';
 
--- Asignar Roles a los Usuarios
 GRANT Administrador TO 'admin'@'%';
 GRANT Vendedor TO 'vendedor'@'%';
 GRANT Comprador TO 'comprador'@'%';
 
--- Mostrar los permisos asignados a cada usuario
+SET DEFAULT ROLE Administrador TO 'admin'@'%';
+SET DEFAULT ROLE Vendedor TO 'vendedor'@'%';
+SET DEFAULT ROLE Comprador TO 'comprador'@'%';
+
 SHOW GRANTS FOR 'admin'@'%';
 SHOW GRANTS FOR 'vendedor'@'%';
 SHOW GRANTS FOR 'comprador'@'%';

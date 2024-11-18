@@ -1,68 +1,107 @@
--- Usuarios
-INSERT INTO Usuario (nombre, email, rol, reputacion) VALUES ('Admin', 'admin@site.com', 'Administrador', 0);
-INSERT INTO Usuario (nombre, email, rol, reputacion) VALUES ('Vendedor1', 'vendedor1@site.com', 'Vendedor', 5);
-INSERT INTO Usuario (nombre, email, rol, reputacion) VALUES ('Comprador1', 'comprador1@site.com', 'Comprador', 3);
-INSERT INTO Usuario (nombre, email, rol, reputacion) VALUES ('Vendedor2', 'vendedor2@site.com', 'Vendedor', 4);
-INSERT INTO Usuario (nombre, email, rol, reputacion) VALUES ('Comprador2', 'comprador2@site.com', 'Comprador', 2);
-INSERT INTO Usuario (nombre, email, rol, reputacion) VALUES ('Vendedor3', 'vendedor3@site.com', 'Vendedor', 6);
-INSERT INTO Usuario (nombre, email, rol, reputacion) VALUES ('Comprador3', 'comprador3@site.com', 'Comprador', 7);
+INSERT INTO Usuario (nombre, email, rol, reputacion_comprador, reputacion_vendedor)
+VALUES
+    ('Juan Pérez', 'juan.perez@email.com', 'Comprador', 5, 0),
+    ('Ana Gómez', 'ana.gomez@email.com', 'Vendedor', 0, 4),
+    ('Carlos Martínez', 'carlos.martinez@email.com', 'Administrador', 0, 0),
+    ('Laura Sánchez', 'laura.sanchez@email.com', 'Comprador', 2, 0),
+    ('Pedro López', 'pedro.lopez@email.com', 'Vendedor', 0, 3),
+    ('Marta Ruiz', 'marta.ruiz@email.com', 'Comprador', 3, 0),
+    ('Luis Fernández', 'luis.fernandez@email.com', 'Administrador', 0, 0),
+    ('Elena Rodríguez', 'elena.rodriguez@email.com', 'Vendedor', 0, 5),
+    ('José García', 'jose.garcia@email.com', 'Comprador', 4, 0),
+    ('Beatriz Pérez', 'beatriz.perez@email.com', 'Vendedor', 0, 2);
 
--- Categorías
-INSERT INTO Categoria (nombre_categoria) VALUES ('Electrónicos');
-INSERT INTO Categoria (nombre_categoria) VALUES ('Hogar');
-INSERT INTO Categoria (nombre_categoria) VALUES ('Juguetes');
-INSERT INTO Categoria (nombre_categoria) VALUES ('Ropa');
-INSERT INTO Categoria (nombre_categoria) VALUES ('Deportes');
-INSERT INTO Categoria (nombre_categoria) VALUES ('Libros');
+INSERT INTO Categoria (nombre_categoria)
+VALUES
+    ('Electrónica'),
+    ('Ropa'),
+    ('Hogar'),
+    ('Muebles'),
+    ('Juguetes'),
+    ('Deportes'),
+    ('Alimentos'),
+    ('Libros'),
+    ('Belleza'),
+    ('Automóviles');
 
--- Productos
-INSERT INTO Producto (nombre, precio, id_categoria, descripcion, stock, id_vendedor) 
-VALUES ('Televisor 40 pulgadas', 75000.00, 1, 'Televisor HD', 10, 2);
+INSERT INTO Producto (id_vendedor, nombre, precio, id_categoria, descripcion, stock)
+VALUES
+    (2, 'Smartphone', 299.99, 1, 'Smartphone de última generación', 50),
+    (2, 'T-Shirt', 19.99, 2, 'Camiseta de algodón, talla M', 200),
+    (2, 'Cafetera', 49.99, 3, 'Cafetera de 1.5 litros', 30),
+    (3, 'Laptop', 999.99, 1, 'Laptop portátil con procesador i7', 15),
+    (4, 'Chaqueta', 89.99, 2, 'Chaqueta de cuero', 100),
+    (5, 'Silla de oficina', 120.00, 4, 'Silla ergonómica', 25),
+    (6, 'Pelota de fútbol', 15.00, 6, 'Pelota de fútbol profesional', 150),
+    (7, 'Libro "Cien años de soledad"', 12.50, 8, 'Novela de Gabriel García Márquez', 200),
+    (8, 'Crema antiarrugas', 45.00, 9, 'Crema para el cuidado de la piel', 80),
+    (9, 'Neumáticos', 85.00, 10, 'Neumáticos para automóviles', 50),
+    (10, 'Camiseta de algodón', 19.99, 2, 'Camiseta básica en varios colores', 180),
+    (2, 'Auriculares Bluetooth', 59.99, 1, 'Auriculares inalámbricos con cancelación de ruido', 100),
+    (4, 'Smartwatch', 199.99, 1, 'Reloj inteligente con monitor de actividad', 70);
 
-INSERT INTO Producto (nombre, precio, id_categoria, descripcion, stock, id_vendedor) 
-VALUES ('Lavarropas', 50000.00, 2, 'Lavarropas automático', 5, 2);
+INSERT INTO Venta (id_comprador, estado, monto)
+VALUES
+    (1, 'En curso', 319.98),   -- Juan compra un Smartphone y una T-Shirt
+    (1, 'Concretada', 49.99),  -- Juan compra una Cafetera
+    (2, 'En curso', 1000.00),  -- Ana compra una Laptop
+    (3, 'Concretada', 89.99),  -- Carlos compra una Chaqueta
+    (4, 'En curso', 240.00),   -- Laura compra una Silla y un libro
+    (5, 'Concretada', 120.00), -- Pedro compra una Silla de oficina
+    (6, 'Cancelada', 90.00),   -- Marta compra una Pelota de fútbol
+    (7, 'En curso', 50.00),    -- Luis compra un libro
+    (8, 'En curso', 45.00),    -- Elena compra una crema antiarrugas
+    (9, 'Concretada', 85.00);  -- José compra neumáticos
 
-INSERT INTO Producto (nombre, precio, id_categoria, descripcion, stock, id_vendedor) 
-VALUES ('Micrófono inalámbrico', 12000.00, 1, 'Micrófono de alta calidad', 30, 3);
+INSERT INTO Envio (fecha, estado_envio, ubicacion_actual)
+VALUES
+    ('2024-11-01 10:00:00', 'Pendiente', 'Centro de distribución - Ciudad A'),
+    ('2024-11-02 11:15:00', 'Comenzado', 'Sucursal B - Ciudad B'),
+    ('2024-11-03 09:30:00', 'Finalizado', 'Cliente - Ciudad C'),
+    ('2024-11-04 14:00:00', 'Pendiente', 'Centro de distribución - Ciudad D'),
+    ('2024-11-05 13:45:00', 'Comenzado', 'Sucursal E - Ciudad E'),
+    ('2024-11-06 16:20:00', 'Finalizado', 'Cliente - Ciudad F'),
+    ('2024-11-07 08:00:00', 'Pendiente', 'Centro de distribución - Ciudad G'),
+    ('2024-11-08 17:00:00', 'Comenzado', 'Sucursal H - Ciudad H'),
+    ('2024-11-09 10:00:00', 'Pendiente', 'Centro de distribución - Ciudad I'),
+    ('2024-11-10 11:30:00', 'Finalizado', 'Cliente - Ciudad J');
 
-INSERT INTO Producto (nombre, precio, id_categoria, descripcion, stock, id_vendedor) 
-VALUES ('Silla de oficina', 15000.00, 2, 'Silla ergonómica', 20, 3);
 
-INSERT INTO Producto (nombre, precio, id_categoria, descripcion, stock, id_vendedor) 
-VALUES ('Camiseta de fútbol', 3500.00, 4, 'Camiseta oficial', 50, 4);
+INSERT INTO DetalleEnvio (nro_envio, id_venta, estado, tipo_envio)
+VALUES
+    (1, 1, 'Pendiente', 'Domicilio'),
+    (1, 2, 'Despachado', 'Punto entrega'),
+    (1, 3, 'Pendiente', 'Domicilio'),
+    (1, 4, 'Despachado', 'Domicilio'),
+    (2, 5, 'En camino', 'Punto entrega'),
+    (2, 6, 'Pendiente', 'Domicilio'),
+    (2, 7, 'Despachado', 'Punto entrega'),
+    (2, 8, 'Pendiente', 'Domicilio'),
+    (2, 9, 'Despachado', 'Punto entrega');
 
-INSERT INTO Producto (nombre, precio, id_categoria, descripcion, stock, id_vendedor) 
-VALUES ('Balón de fútbol', 4000.00, 5, 'Balón de fútbol profesional', 25, 4);
+INSERT INTO PagoVenta (id_venta, estado_pago, metodo_pago)
+VALUES
+    (1, 'Pendiente', 'Credito'),
+    (2, 'Pagado', 'Debito'),
+    (3, 'Pendiente', 'Credito'),
+    (4, 'Pagado', 'Transferencia'),
+    (5, 'Pendiente', 'Debito'),
+    (6, 'Pagado', 'Credito'),
+    (7, 'Reembolsado', 'Transferencia'),
+    (8, 'Pendiente', 'Debito'),
+    (9, 'Pagado', 'Credito'),
+    (10, 'Pendiente', 'Transferencia');
 
-INSERT INTO Producto (nombre, precio, id_categoria, descripcion, stock, id_vendedor) 
-VALUES ('El código Da Vinci', 800.00, 6, 'Novela de suspenso', 100, 5);
+INSERT INTO UsuarioRol (id_usuario, rol, reputacion)
+VALUES
+    (1, 'Comprador', 5),
+    (2, 'Vendedor', 4),
+    (3, 'Administrador', 0),
+    (4, 'Comprador', 2),
+    (5, 'Vendedor', 3),
+    (6, 'Comprador', 3),
+    (7, 'Administrador', 0),
+    (8, 'Vendedor', 5),
+    (9, 'Comprador', 4),
+    (10, 'Vendedor', 2);
 
--- Pedidos
-INSERT INTO Pedido (id_comprador, fecha_pedido, estado_envio, tipo_envio) 
-VALUES (3, NOW(), 'Pendiente', 'Envío rápido');
-INSERT INTO Pedido (id_comprador, fecha_pedido, estado_envio, tipo_envio) 
-VALUES (2, NOW(), 'Enviado', 'Envío estándar');
-INSERT INTO Pedido (id_comprador, fecha_pedido, estado_envio, tipo_envio) 
-VALUES (4, NOW(), 'Pendiente', 'Envío rápido');
-INSERT INTO Pedido (id_comprador, fecha_pedido, estado_envio, tipo_envio) 
-VALUES (5, NOW(), 'Pendiente', 'Envío económico');
-
--- Envíos
-INSERT INTO Envio (id_pedido, estado_envio, tipo_envio) 
-VALUES (1, 'Despachado', 'Envío rápido');
-INSERT INTO Envio (id_pedido, estado_envio, tipo_envio) 
-VALUES (2, 'Enviado', 'Envío estándar');
-INSERT INTO Envio (id_pedido, estado_envio, tipo_envio) 
-VALUES (3, 'Pendiente', 'Envío rápido');
-INSERT INTO Envio (id_pedido, estado_envio, tipo_envio) 
-VALUES (4, 'Pendiente', 'Envío económico');
-
--- Transacciones
-INSERT INTO Transaccion (id_vendedor, id_pedido, monto, estado_pago) 
-VALUES (2, 1, 75000.00, 'Pendiente');
-INSERT INTO Transaccion (id_vendedor, id_pedido, monto, estado_pago) 
-VALUES (3, 2, 12000.00, 'Completado');
-INSERT INTO Transaccion (id_vendedor, id_pedido, monto, estado_pago) 
-VALUES (3, 3, 15000.00, 'Pendiente');
-INSERT INTO Transaccion (id_vendedor, id_pedido, monto, estado_pago) 
-VALUES (4, 4, 3500.00, 'Completado');
