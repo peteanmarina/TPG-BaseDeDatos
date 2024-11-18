@@ -80,3 +80,55 @@ CREATE TABLE PagoVenta (
     metodo_pago ENUM('Efectivo', 'Transferencia', 'Credito', 'Debito') NOT NULL
 );
 
+
+DELIMITER $$
+
+CREATE TRIGGER trigger_actualizar_reputacion_vendedor
+AFTER UPDATE ON Venta
+FOR EACH ROW
+BEGIN
+	IF NEW.estado = 'Concretada' THEN
+        UPDATE UsuarioRol
+        SET reputacion = (
+            SELECT COUNT(*)
+            FROM Venta v
+            INNER JOIN DetalleProducto dp ON v.id_venta = dp.id_venta
+            INNER JOIN Producto p ON dp.id_producto = p.id_producto
+            WHERE p.id_vendedor = NEW.id_comprador
+            AND v.estado = 'Concretada'
+        )
+        WHERE id_usuario = NEW.id_comprador AND rol = 'Vendedor';
+    END IF;
+END $$
+
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE TRIGGER trigger_actualizar_reputacion_comprador
+AFTER UPDATE ON PagoVenta
+FOR EACH ROW
+BEGIN
+    IF NEW.estado_pago = 'Pagado' THEN
+        UPDATE UsuarioRol
+        SET reputacion = (
+            SELECT COUNT(*)
+            FROM Venta v
+            WHERE v.id_comprador = (
+                SELECT id_comprador
+                FROM Venta
+                WHERE id_venta = NEW.id_venta
+            )
+            AND v.estado = 'Concretada'
+        )
+        WHERE id_usuario = (
+            SELECT id_comprador
+            FROM Venta
+            WHERE id_venta = NEW.id_venta
+        )
+        AND rol = 'Comprador';
+    END IF;
+END $$
+
+DELIMITER ;
+
