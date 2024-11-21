@@ -3,7 +3,7 @@ CREATE DATABASE TiendaOnline;
 USE TiendaOnline;
 
 CREATE TABLE Usuario (
-    id_usuario SERIAL PRIMARY KEY,
+    id_usuario BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  -- Se hace UNSIGNED
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     rol ENUM('Administrador', 'Vendedor', 'Comprador') NOT NULL,
@@ -19,14 +19,13 @@ CREATE TABLE UsuarioRol(
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
 
-
 CREATE TABLE Categoria (
-    id_categoria SERIAL PRIMARY KEY,
+    id_categoria BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre_categoria VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Configuracion (
-    id_configuracion SERIAL PRIMARY KEY,
+    id_configuracion BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     clave VARCHAR(50) UNIQUE NOT NULL,
     valor DECIMAL(10, 2) NOT NULL
 );
@@ -34,7 +33,7 @@ CREATE TABLE Configuracion (
 INSERT INTO Configuracion (clave, valor) VALUES ('precio_minimo', 10.00);
 
 CREATE TABLE Producto (
-    id_producto SERIAL PRIMARY KEY,
+    id_producto BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_vendedor BIGINT UNSIGNED,
     nombre VARCHAR(100) NOT NULL,
     precio DECIMAL(10, 2),
@@ -45,32 +44,20 @@ CREATE TABLE Producto (
     FOREIGN KEY (id_vendedor) REFERENCES Usuario(id_usuario)
 );
 
-CREATE TABLE Producto (
-    id_producto SERIAL PRIMARY KEY,
-    id_vendedor BIGINT UNSIGNED,
-    nombre VARCHAR(100) NOT NULL,
-    precio DECIMAL(10, 2),
-    id_categoria BIGINT UNSIGNED,
-    descripcion VARCHAR(255),
-    stock INT CHECK (stock >= 0),
-    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria),
-    FOREIGN KEY (id_vendedor) REFERENCES Usuario(id_usuario)
-);  
-
 CREATE TABLE Envio (
-    nro_envio SERIAL PRIMARY KEY,
-	fecha TIMESTAMP NOT NULL,
+    nro_envio BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    fecha TIMESTAMP NOT NULL,
     estado_envio ENUM('Pendiente', 'Comenzado', 'Finalizado', 'Cancelado') DEFAULT 'Pendiente',
     ubicacion_actual VARCHAR(255)
 );
 
 CREATE TABLE Venta (
-    id_venta SERIAL PRIMARY KEY,
-    id_comprador BIGINT UNSIGNED,
+    id_venta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_comprador BIGINT UNSIGNED,  -- Se hace UNSIGNED para ser compatible con id_usuario
     estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
     monto DECIMAL(10, 2) NOT NULL CHECK (monto > 0),
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario)
+    FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario)  -- Relación con id_usuario que es UNSIGNED
 );
 
 CREATE TABLE DetalleEnvio (
@@ -80,7 +67,7 @@ CREATE TABLE DetalleEnvio (
     tipo_envio ENUM('Domicilio', 'Punto entrega'),  
     FOREIGN KEY (nro_envio) REFERENCES Envio(nro_envio),
     FOREIGN KEY (id_venta) REFERENCES Venta(id_venta)
-); 
+);
 
 CREATE TABLE DetalleProducto (
     id_venta BIGINT UNSIGNED,
@@ -93,15 +80,15 @@ CREATE TABLE DetalleProducto (
 );
 
 CREATE TABLE PagoVenta (
-    id_pago SERIAL PRIMARY KEY,
-	id_venta BIGINT UNSIGNED,
-	estado_pago ENUM('Pendiente', 'Pagado', 'Reembolsado') DEFAULT 'Pendiente',
-	fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_pago BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_venta BIGINT UNSIGNED,
+    estado_pago ENUM('Pendiente', 'Pagado', 'Reembolsado') DEFAULT 'Pendiente',
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metodo_pago ENUM('Efectivo', 'Transferencia', 'Credito', 'Debito') NOT NULL
 );
 
 CREATE TABLE Oferta (
-    id_oferta SERIAL PRIMARY KEY,
+    id_oferta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_comprador BIGINT UNSIGNED,
     id_producto BIGINT UNSIGNED,
     precio_ofrecido DECIMAL(10, 2) CHECK (precio_ofrecido > 0),
@@ -173,5 +160,21 @@ BEGIN
         SET MESSAGE_TEXT = 'El precio debe ser mayor al valor mínimo configurado';
     END IF;
 END$$
+
+DELIMITER ;
+
+
+DELIMITER //
+
+CREATE TRIGGER actualizar_precio_producto
+AFTER UPDATE ON Oferta
+FOR EACH ROW
+BEGIN
+    IF NEW.estado = 'Aceptada' AND OLD.estado != 'Aceptada' THEN
+        UPDATE Producto
+        SET precio = NEW.precio_ofrecido
+        WHERE id_producto = NEW.id_producto;
+    END IF;
+END //
 
 DELIMITER ;
