@@ -108,7 +108,7 @@ VALUES
     (9, 'Comprador', 4),
     (10, 'Vendedor', 2);
 
-INSERT INTO Oferta (id_producto, id_comprador, precio_ofertado, estado_oferta, fecha_oferta)
+INSERT INTO Oferta (id_producto, id_comprador, precio_ofrecido, estado, fecha)
 VALUES
     (1, 1, 280.00, 'Aceptada', '2024-11-10 10:00:00'),  -- Juan Pérez hace una oferta por un Smartphone
     (2, 1, 15.00, 'Pendiente', '2024-11-11 12:00:00'),  -- Juan Pérez hace una oferta por una T-Shirt

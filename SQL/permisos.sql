@@ -12,30 +12,34 @@ GRANT ALL PRIVILEGES ON *.* TO Administrador WITH GRANT OPTION;
 GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Producto TO Vendedor;
 GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Categoria TO Vendedor;
 
--- Vista para los vendedores, solo con ciertos atributos de Producto
+-- Vistas para los vendedores
 CREATE VIEW VistaProductoVendedor AS
 SELECT id_producto, nombre, descripcion, precio, stock, id_categoria
 FROM TiendaOnline.Producto;
 
--- Vista para los compradores, solo con ciertos atributos de Producto
+-- Vistas para los compradores
 CREATE VIEW VistaProductoComprador AS
-SELECT id_producto, nombre, precio, descripcion
+SELECT nombre, precio, descripcion
 FROM TiendaOnline.Producto;
+
+CREATE VIEW VistaEnvioComprador AS
+SELECT tipo_envio, estado
+FROM TiendaOnline.DetalleEnvio;
 
 -- Asignar permisos a los Vendedores sobre la vista
 GRANT SELECT, INSERT, UPDATE ON TiendaOnline.VistaProductoVendedor TO Vendedor;
 
--- Asignar permisos a los Compradores sobre la vista
+-- Permitir a compradores ver los productos
 GRANT SELECT ON TiendaOnline.VistaProductoComprador TO Comprador;
 
--- Permitir que el Comprador inserte ofertas en la tabla Oferta
+-- Permitir que el Comprador oferte
 GRANT INSERT ON TiendaOnline.Oferta TO Comprador;
 
--- Permitir que el Comprador realice ventas
+-- Permitir al comprador comprar
 GRANT INSERT, UPDATE ON TiendaOnline.Venta TO Comprador;
 
--- Permitir que el Comprador vea y actualice envíos
-GRANT SELECT, UPDATE ON TiendaOnline.Envio TO Comprador;
+-- Permitir que el Comprador vea y actualice envios
+GRANT SELECT, UPDATE ON TiendaOnline.VistaEnvioComprador TO Comprador;
 
 -- Crear los usuarios
 CREATE USER 'admin'@'%' IDENTIFIED BY 'clave_admin';
@@ -51,8 +55,3 @@ GRANT Comprador TO 'comprador'@'%';
 SET DEFAULT ROLE Administrador TO 'admin'@'%';
 SET DEFAULT ROLE Vendedor TO 'vendedor'@'%';
 SET DEFAULT ROLE Comprador TO 'comprador'@'%';
-
--- Verificación de los Privilegios Asignados
-SHOW GRANTS FOR 'admin'@'%';
-SHOW GRANTS FOR 'vendedor'@'%';
-SHOW GRANTS FOR 'comprador'@'%';

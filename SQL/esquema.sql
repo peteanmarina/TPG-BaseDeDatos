@@ -117,7 +117,7 @@ CREATE TRIGGER trigger_actualizar_reputacion_vendedor
 AFTER UPDATE ON Venta
 FOR EACH ROW
 BEGIN
-	IF NEW.estado = 'Concretada' THEN
+    IF NEW.estado = 'Concretada' THEN
         UPDATE UsuarioRol
         SET reputacion = (
             SELECT COUNT(*)
@@ -129,9 +129,7 @@ BEGIN
         )
         WHERE id_usuario = NEW.id_comprador AND rol = 'Vendedor';
     END IF;
-END $$
-
-DELIMITER ;
+END$$
 
 DELIMITER $$
 
@@ -158,38 +156,10 @@ BEGIN
         )
         AND rol = 'Comprador';
     END IF;
-END $$
-
-DELIMITER ;
+END$$
 
 DELIMITER $$
 
-CREATE PROCEDURE gestionar_oferta(
-    IN p_id_oferta BIGINT,
-    IN p_estado ENUM('Aceptada', 'Rechazada')
-)
-BEGIN
-    DECLARE v_id_producto BIGINT;
-    DECLARE v_id_vendedor BIGINT;
-
-    SELECT id_producto, id_vendedor INTO v_id_producto, v_id_vendedor
-    FROM Producto
-    WHERE id_producto = (SELECT id_producto FROM Oferta WHERE id_oferta = p_id_oferta);
-
-    IF v_id_vendedor = (SELECT id_vendedor FROM Producto WHERE id_producto = v_id_producto) THEN
-        UPDATE Oferta
-        SET estado = p_estado
-        WHERE id_oferta = p_id_oferta;
-    ELSE
-        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El vendedor no puede gestionar esta oferta';
-    END IF;
-END $$
-
-DELIMITER ;
-
-
--- Restriccion de precio de producto
-DELIMITER //
 CREATE TRIGGER validar_precio
 BEFORE INSERT ON Producto
 FOR EACH ROW
@@ -202,6 +172,6 @@ BEGIN
         SIGNAL SQLSTATE '45000'
         SET MESSAGE_TEXT = 'El precio debe ser mayor al valor mínimo configurado';
     END IF;
-END;
-//
+END$$
+
 DELIMITER ;
