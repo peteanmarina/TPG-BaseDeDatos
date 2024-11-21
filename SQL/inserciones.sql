@@ -95,12 +95,15 @@ VALUES
 INSERT INTO UsuarioRol (id_usuario, rol, reputacion)
 VALUES
     (1, 'Comprador', 5),
+	(1, 'Vendedor', 10),
     (2, 'Vendedor', 4),
     (3, 'Administrador', 0),
     (4, 'Comprador', 2),
+	(5, 'Comprador', 1),
     (5, 'Vendedor', 3),
     (6, 'Comprador', 3),
     (7, 'Administrador', 0),
+	(8, 'Comprador', 1),
     (8, 'Vendedor', 5),
     (9, 'Comprador', 4),
     (10, 'Vendedor', 2);

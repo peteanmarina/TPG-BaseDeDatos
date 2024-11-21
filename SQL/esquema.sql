@@ -3,7 +3,7 @@ CREATE DATABASE TiendaOnline;
 USE TiendaOnline;
 
 CREATE TABLE Usuario (
-    id_usuario SERIAL PRIMARY KEY,
+    id_usuario BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     rol ENUM('Administrador', 'Vendedor', 'Comprador') NOT NULL,
@@ -19,14 +19,13 @@ CREATE TABLE UsuarioRol(
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
 
-
 CREATE TABLE Categoria (
-    id_categoria SERIAL PRIMARY KEY,
+    id_categoria BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre_categoria VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE Producto (
-    id_producto SERIAL PRIMARY KEY,
+    id_producto BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_vendedor BIGINT UNSIGNED,
     nombre VARCHAR(100) NOT NULL,
     precio DECIMAL(10, 2) CHECK (precio > 0),
@@ -38,14 +37,14 @@ CREATE TABLE Producto (
 );  
 
 CREATE TABLE Envio (
-    nro_envio SERIAL PRIMARY KEY,
-	fecha TIMESTAMP NOT NULL,
+    nro_envio BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    fecha TIMESTAMP NOT NULL,
     estado_envio ENUM('Pendiente', 'Comenzado', 'Finalizado', 'Cancelado') DEFAULT 'Pendiente',
     ubicacion_actual VARCHAR(255)
 );
 
 CREATE TABLE Venta (
-    id_venta SERIAL PRIMARY KEY,
+    id_venta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_comprador BIGINT UNSIGNED,
     estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
     monto DECIMAL(10, 2) NOT NULL CHECK (monto > 0),
@@ -73,13 +72,12 @@ CREATE TABLE DetalleProducto (
 );
 
 CREATE TABLE PagoVenta (
-    id_pago SERIAL PRIMARY KEY,
-	id_venta BIGINT UNSIGNED,
-	estado_pago ENUM('Pendiente', 'Pagado', 'Reembolsado') DEFAULT 'Pendiente',
-	fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_pago BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_venta BIGINT UNSIGNED,
+    estado_pago ENUM('Pendiente', 'Pagado', 'Reembolsado') DEFAULT 'Pendiente',
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metodo_pago ENUM('Efectivo', 'Transferencia', 'Credito', 'Debito') NOT NULL
 );
-
 
 DELIMITER $$
 
@@ -87,7 +85,7 @@ CREATE TRIGGER trigger_actualizar_reputacion_vendedor
 AFTER UPDATE ON Venta
 FOR EACH ROW
 BEGIN
-	IF NEW.estado = 'Concretada' THEN
+    IF NEW.estado = 'Concretada' THEN
         UPDATE UsuarioRol
         SET reputacion = (
             SELECT COUNT(*)
@@ -131,4 +129,3 @@ BEGIN
 END $$
 
 DELIMITER ;
-
