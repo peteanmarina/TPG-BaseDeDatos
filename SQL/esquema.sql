@@ -3,7 +3,7 @@ CREATE DATABASE TiendaOnline;
 USE TiendaOnline;
 
 CREATE TABLE Usuario (
-    id_usuario BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_usuario SERIAL PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     rol ENUM('Administrador', 'Vendedor', 'Comprador') NOT NULL,
@@ -19,16 +19,37 @@ CREATE TABLE UsuarioRol(
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
 
+
 CREATE TABLE Categoria (
-    id_categoria BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_categoria SERIAL PRIMARY KEY,
     nombre_categoria VARCHAR(50) NOT NULL
 );
 
+CREATE TABLE Configuracion (
+    id_configuracion SERIAL PRIMARY KEY,
+    clave VARCHAR(50) UNIQUE NOT NULL,
+    valor DECIMAL(10, 2) NOT NULL
+);
+
+INSERT INTO Configuracion (clave, valor) VALUES ('precio_minimo', 10.00);
+
 CREATE TABLE Producto (
-    id_producto BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_producto SERIAL PRIMARY KEY,
     id_vendedor BIGINT UNSIGNED,
     nombre VARCHAR(100) NOT NULL,
-    precio DECIMAL(10, 2) CHECK (precio > 0),
+    precio DECIMAL(10, 2),
+    id_categoria BIGINT UNSIGNED,
+    descripcion VARCHAR(255),
+    stock INT CHECK (stock >= 0),
+    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria),
+    FOREIGN KEY (id_vendedor) REFERENCES Usuario(id_usuario)
+);
+
+CREATE TABLE Producto (
+    id_producto SERIAL PRIMARY KEY,
+    id_vendedor BIGINT UNSIGNED,
+    nombre VARCHAR(100) NOT NULL,
+    precio DECIMAL(10, 2),
     id_categoria BIGINT UNSIGNED,
     descripcion VARCHAR(255),
     stock INT CHECK (stock >= 0),
@@ -37,14 +58,14 @@ CREATE TABLE Producto (
 );  
 
 CREATE TABLE Envio (
-    nro_envio BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    fecha TIMESTAMP NOT NULL,
+    nro_envio SERIAL PRIMARY KEY,
+	fecha TIMESTAMP NOT NULL,
     estado_envio ENUM('Pendiente', 'Comenzado', 'Finalizado', 'Cancelado') DEFAULT 'Pendiente',
     ubicacion_actual VARCHAR(255)
 );
 
 CREATE TABLE Venta (
-    id_venta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    id_venta SERIAL PRIMARY KEY,
     id_comprador BIGINT UNSIGNED,
     estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
     monto DECIMAL(10, 2) NOT NULL CHECK (monto > 0),
@@ -72,11 +93,22 @@ CREATE TABLE DetalleProducto (
 );
 
 CREATE TABLE PagoVenta (
-    id_pago BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    id_venta BIGINT UNSIGNED,
-    estado_pago ENUM('Pendiente', 'Pagado', 'Reembolsado') DEFAULT 'Pendiente',
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    id_pago SERIAL PRIMARY KEY,
+	id_venta BIGINT UNSIGNED,
+	estado_pago ENUM('Pendiente', 'Pagado', 'Reembolsado') DEFAULT 'Pendiente',
+	fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metodo_pago ENUM('Efectivo', 'Transferencia', 'Credito', 'Debito') NOT NULL
+);
+
+CREATE TABLE Oferta (
+    id_oferta SERIAL PRIMARY KEY,
+    id_comprador BIGINT UNSIGNED,
+    id_producto BIGINT UNSIGNED,
+    precio_ofrecido DECIMAL(10, 2) CHECK (precio_ofrecido > 0),
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estado ENUM('Pendiente', 'Aceptada', 'Rechazada') DEFAULT 'Pendiente',
+    FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario),
+    FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
 );
 
 DELIMITER $$
@@ -85,7 +117,7 @@ CREATE TRIGGER trigger_actualizar_reputacion_vendedor
 AFTER UPDATE ON Venta
 FOR EACH ROW
 BEGIN
-    IF NEW.estado = 'Concretada' THEN
+	IF NEW.estado = 'Concretada' THEN
         UPDATE UsuarioRol
         SET reputacion = (
             SELECT COUNT(*)
@@ -128,4 +160,48 @@ BEGIN
     END IF;
 END $$
 
+DELIMITER ;
+
+DELIMITER $$
+
+CREATE PROCEDURE gestionar_oferta(
+    IN p_id_oferta BIGINT,
+    IN p_estado ENUM('Aceptada', 'Rechazada')
+)
+BEGIN
+    DECLARE v_id_producto BIGINT;
+    DECLARE v_id_vendedor BIGINT;
+
+    SELECT id_producto, id_vendedor INTO v_id_producto, v_id_vendedor
+    FROM Producto
+    WHERE id_producto = (SELECT id_producto FROM Oferta WHERE id_oferta = p_id_oferta);
+
+    IF v_id_vendedor = (SELECT id_vendedor FROM Producto WHERE id_producto = v_id_producto) THEN
+        UPDATE Oferta
+        SET estado = p_estado
+        WHERE id_oferta = p_id_oferta;
+    ELSE
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El vendedor no puede gestionar esta oferta';
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+-- Restriccion de precio de producto
+DELIMITER //
+CREATE TRIGGER validar_precio
+BEFORE INSERT ON Producto
+FOR EACH ROW
+BEGIN
+    DECLARE precio_min DECIMAL(10, 2);
+
+    SELECT valor INTO precio_min FROM Configuracion WHERE clave = 'precio_minimo';
+
+    IF NEW.precio < precio_min THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El precio debe ser mayor al valor mínimo configurado';
+    END IF;
+END;
+//
 DELIMITER ;

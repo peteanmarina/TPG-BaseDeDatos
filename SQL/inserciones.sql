@@ -108,3 +108,15 @@ VALUES
     (9, 'Comprador', 4),
     (10, 'Vendedor', 2);
 
+INSERT INTO Oferta (id_producto, id_comprador, precio_ofertado, estado_oferta, fecha_oferta)
+VALUES
+    (1, 1, 280.00, 'Aceptada', '2024-11-10 10:00:00'),  -- Juan Pérez hace una oferta por un Smartphone
+    (2, 1, 15.00, 'Pendiente', '2024-11-11 12:00:00'),  -- Juan Pérez hace una oferta por una T-Shirt
+    (3, 4, 45.00, 'Rechazada', '2024-11-12 09:00:00'),  -- Laura Sánchez hace una oferta por una Cafetera
+    (4, 5, 850.00, 'Aceptada', '2024-11-13 15:30:00'),  -- Pedro López hace una oferta por una Laptop
+    (5, 6, 80.00, 'Pendiente', '2024-11-14 11:45:00'),  -- Marta Ruiz hace una oferta por una Chaqueta
+    (6, 9, 12.00, 'Rechazada', '2024-11-15 08:20:00'),  -- José García hace una oferta por una Pelota de fútbol
+    (7, 7, 10.50, 'Aceptada', '2024-11-16 16:10:00'),   -- Luis Fernández hace una oferta por un libro
+    (8, 3, 40.00, 'Aceptada', '2024-11-17 13:00:00'),   -- Carlos Martínez hace una oferta por una crema antiarrugas
+    (9, 2, 80.00, 'Pendiente', '2024-11-18 14:30:00'),  -- Ana Gómez hace una oferta por neumáticos
+    (10, 8, 17.99, 'Aceptada', '2024-11-19 09:50:00');  -- Elena Rodríguez hace una oferta por una camiseta.
