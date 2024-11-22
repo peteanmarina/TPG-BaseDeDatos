@@ -3,7 +3,7 @@ CREATE DATABASE TiendaOnline;
 USE TiendaOnline;
 
 CREATE TABLE Usuario (
-    id_usuario BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  -- Se hace UNSIGNED
+    id_usuario BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  
     nombre VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     rol ENUM('Administrador', 'Vendedor', 'Comprador') NOT NULL,
@@ -19,9 +19,31 @@ CREATE TABLE UsuarioRol(
     FOREIGN KEY (id_usuario) REFERENCES Usuario(id_usuario)
 );
 
+CREATE TABLE Producto (
+    id_producto BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100) NOT NULL,
+    descripcion TEXT NOT NULL,
+    precio DECIMAL(10,2) NOT NULL,
+    stock INT UNSIGNED NOT NULL,
+    modelo VARCHAR(100) NOT NULL,
+    marca VARCHAR(50),
+    color VARCHAR(20),
+    fecha_lanzamiento DATE,
+    garantia VARCHAR(100)
+);
+
+
 CREATE TABLE Categoria (
     id_categoria BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre_categoria VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE CategoriaProducto (
+    id_producto BIGINT UNSIGNED,
+    id_categoria BIGINT UNSIGNED,
+    PRIMARY KEY (id_producto, id_categoria),
+    FOREIGN KEY (id_producto) REFERENCES Producto(id_producto),
+    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria)
 );
 
 CREATE TABLE Configuracion (
@@ -32,15 +54,14 @@ CREATE TABLE Configuracion (
 
 INSERT INTO Configuracion (clave, valor) VALUES ('precio_minimo', 10.00);
 
-CREATE TABLE Producto (
-    id_producto BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE Publicacion (
+    id_publicacion BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_vendedor BIGINT UNSIGNED,
-    nombre VARCHAR(100) NOT NULL,
+	id_producto BIGINT UNSIGNED,
+    titulo VARCHAR(100) NOT NULL,
     precio DECIMAL(10, 2),
-    id_categoria BIGINT UNSIGNED,
     descripcion VARCHAR(255),
     stock INT CHECK (stock >= 0),
-    FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria),
     FOREIGN KEY (id_vendedor) REFERENCES Usuario(id_usuario)
 );
 
@@ -53,11 +74,13 @@ CREATE TABLE Envio (
 
 CREATE TABLE Venta (
     id_venta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    id_comprador BIGINT UNSIGNED,  -- Se hace UNSIGNED para ser compatible con id_usuario
-    estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
+    id_comprador BIGINT UNSIGNED,  
+	id_publicación BIGINT UNSIGNED,
+	estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
     monto DECIMAL(10, 2) NOT NULL CHECK (monto > 0),
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario)  -- Relación con id_usuario que es UNSIGNED
+    FOREIGN KEY (id_publicación) REFERENCES Publicacion(id_publicacion),
+	FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario)
 );
 
 CREATE TABLE DetalleEnvio (
@@ -69,14 +92,14 @@ CREATE TABLE DetalleEnvio (
     FOREIGN KEY (id_venta) REFERENCES Venta(id_venta)
 );
 
-CREATE TABLE DetalleProducto (
+CREATE TABLE Detalle (
     id_venta BIGINT UNSIGNED,
-    id_producto BIGINT UNSIGNED,
+    id_publicación BIGINT UNSIGNED,
     cantidad INT CHECK (cantidad > 0),
     precioFacturado DECIMAL(10, 2) CHECK (precioFacturado > 0),
-    PRIMARY KEY (id_venta, id_producto),
+    PRIMARY KEY (id_venta, id_publicación),
     FOREIGN KEY (id_venta) REFERENCES Venta(id_venta),
-    FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
+    FOREIGN KEY (id_publicación) REFERENCES Publicacion(id_publicación)
 );
 
 CREATE TABLE PagoVenta (
@@ -109,7 +132,7 @@ BEGIN
         SET reputacion = (
             SELECT COUNT(*)
             FROM Venta v
-            INNER JOIN DetalleProducto dp ON v.id_venta = dp.id_venta
+            INNER JOIN Detalle dp ON v.id_venta = dp.id_venta
             INNER JOIN Producto p ON dp.id_producto = p.id_producto
             WHERE p.id_vendedor = NEW.id_comprador
             AND v.estado = 'Concretada'
@@ -117,6 +140,7 @@ BEGIN
         WHERE id_usuario = NEW.id_comprador AND rol = 'Vendedor';
     END IF;
 END$$
+
 
 DELIMITER $$
 
