@@ -56,13 +56,15 @@ INSERT INTO Configuracion (clave, valor) VALUES ('precio_minimo', 10.00);
 CREATE TABLE Publicacion (
     id_publicacion BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_vendedor BIGINT UNSIGNED,
-	id_producto BIGINT UNSIGNED,
-    titulo VARCHAR(100) NOT NULL,
-    precio DECIMAL(10, 2),
-    descripcion VARCHAR(255),
-    stock INT CHECK (stock >= 0),
+    titulo VARCHAR(255) NOT NULL,
+    descripcion TEXT,
+    precio DECIMAL(10, 2) NOT NULL,
+    stock INT DEFAULT 1,
+    fecha_publicacion DATETIME DEFAULT CURRENT_TIMESTAMP, 
+    estado ENUM('Activa', 'Pausada', 'Finalizada') DEFAULT 'Activa',
     FOREIGN KEY (id_vendedor) REFERENCES Usuario(id_usuario)
 );
+
 
 CREATE TABLE Envio (
     nro_envio BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -74,11 +76,11 @@ CREATE TABLE Envio (
 CREATE TABLE Venta (
     id_venta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_comprador BIGINT UNSIGNED,  
-	id_publicación BIGINT UNSIGNED,
+	id_publicacion BIGINT UNSIGNED,
 	estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
     monto DECIMAL(10, 2) NOT NULL CHECK (monto > 0),
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_publicación) REFERENCES Publicacion(id_publicacion),
+    FOREIGN KEY (id_publicacion) REFERENCES Publicacion(id_publicacion),
 	FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario)
 );
 
@@ -93,12 +95,12 @@ CREATE TABLE DetalleEnvio (
 
 CREATE TABLE Detalle (
     id_venta BIGINT UNSIGNED,
-    id_publicación BIGINT UNSIGNED,
+    id_publicacion BIGINT UNSIGNED,
     cantidad INT CHECK (cantidad > 0),
     precioFacturado DECIMAL(10, 2) CHECK (precioFacturado > 0),
-    PRIMARY KEY (id_venta, id_publicación),
+    PRIMARY KEY (id_venta, id_publicacion),
     FOREIGN KEY (id_venta) REFERENCES Venta(id_venta),
-    FOREIGN KEY (id_publicación) REFERENCES Publicacion(id_publicación)
+    FOREIGN KEY (id_publicacion) REFERENCES Publicacion(id_publicacion)
 );
 
 CREATE TABLE PagoVenta (

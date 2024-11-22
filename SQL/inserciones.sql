@@ -11,35 +11,60 @@ VALUES
     ('José García', 'jose.garcia@email.com', 'Comprador', 4, 0),
     ('Beatriz Pérez', 'beatriz.perez@email.com', 'Vendedor', 0, 2);
 
-INSERT INTO Categoria (nombre_categoria)
-VALUES
-    ('Electrónica'),
-    ('Ropa'),
-    ('Hogar'),
-    ('Muebles'),
-    ('Juguetes'),
-    ('Deportes'),
-    ('Alimentos'),
-    ('Libros'),
-    ('Belleza'),
+INSERT INTO Categoria (nombre_categoria) 
+VALUES 
+    ('Electrónica'), 
+    ('Ropa'), 
+    ('Hogar'), 
+    ('Muebles'), 
+    ('Juguetes'), 
+    ('Deportes'), 
+    ('Alimentos'), 
+    ('Libros'), 
+    ('Belleza'), 
     ('Automóviles');
-
-INSERT INTO Producto (id_vendedor, nombre, precio, id_categoria, descripcion, stock)
+	
+INSERT INTO CategoriaProducto (id_producto, id_categoria)
 VALUES
-    (2, 'Smartphone', 299.99, 1, 'Smartphone de última generación', 50),
-    (2, 'T-Shirt', 19.99, 2, 'Camiseta de algodón, talla M', 200),
-    (2, 'Cafetera', 49.99, 3, 'Cafetera de 1.5 litros', 30),
-    (3, 'Laptop', 999.99, 1, 'Laptop portátil con procesador i7', 15),
-    (4, 'Chaqueta', 89.99, 2, 'Chaqueta de cuero', 100),
-    (5, 'Silla de oficina', 120.00, 4, 'Silla ergonómica', 25),
-    (6, 'Pelota de fútbol', 15.00, 6, 'Pelota de fútbol profesional', 150),
-    (7, 'Libro "Cien años de soledad"', 12.50, 8, 'Novela de Gabriel García Márquez', 200),
-    (8, 'Crema antiarrugas', 45.00, 9, 'Crema para el cuidado de la piel', 80),
-    (9, 'Neumáticos', 85.00, 10, 'Neumáticos para automóviles', 50),
-    (10, 'Camiseta de algodón', 19.99, 2, 'Camiseta básica en varios colores', 180),
-    (2, 'Auriculares Bluetooth', 59.99, 1, 'Auriculares inalámbricos con cancelación de ruido', 100),
-    (4, 'Smartwatch', 199.99, 1, 'Reloj inteligente con monitor de actividad', 70);
+    (1, 1),  -- Smartphone en Electrónica
+    (2, 2),  -- T-Shirt en Ropa
+    (3, 3),  -- Cafetera en Hogar
+    (4, 1),  -- Laptop en Electrónica
+    (5, 2),  -- Chaqueta en Ropa
+    (6, 4),  -- Silla de oficina en Muebles
+    (7, 6),  -- Pelota de fútbol en Deportes
+    (8, 8),  -- Libro en Libros
+    (9, 9),  -- Crema antiarrugas en Belleza
+    (10, 10); -- Neumáticos en Automóviles
 
+
+INSERT INTO Producto (nombre, descripcion, precio, modelo, marca, color, fecha_lanzamiento, garantia)
+VALUES
+    ('Smartphone', 'Smartphone de última generación', 299.99, 'Galaxy S21', 'Samsung', 'Negro', '2024-01-01', '1 año'),
+    ('T-Shirt', 'Camiseta de algodón, talla M', 19.99, 'CottonClassic', 'Hanes', 'Blanco', '2023-06-01', 'No aplica'),
+    ('Cafetera', 'Cafetera de 1.5 litros', 49.99, 'CoffeePro', 'DeLonghi', 'Negro', '2022-11-10', '2 años'),
+    ('Laptop', 'Laptop portátil con procesador i7', 999.99, 'XPS 15', 'Dell', 'Plata', '2023-09-15', '1 año'),
+    ('Chaqueta', 'Chaqueta de cuero', 89.99, 'LeatherMaster', 'Armani', 'Marrón', '2023-02-20', '6 meses'),
+    ('Silla de oficina', 'Silla ergonómica', 120.00, 'ErgoChair', 'HermanMiller', 'Negro', '2022-05-30', '5 años'),
+    ('Pelota de fútbol', 'Pelota de fútbol profesional', 15.00, 'ProBall', 'Nike', 'Blanco', '2021-08-15', 'No aplica'),
+    ('Libro "Cien años de soledad"', 'Novela de Gabriel García Márquez', 12.50, 'Primera edición', 'Penguin', 'N/A', '1967-06-05', 'No aplica'),
+    ('Crema antiarrugas', 'Crema para el cuidado de la piel', 45.00, 'AgeDefy', 'L\'Oreal', 'N/A', '2024-04-01', '1 año'),
+    ('Neumáticos', 'Neumáticos para automóviles', 85.00, 'AutoGrip', 'Michelin', 'Negro', '2023-03-25', '3 años');
+	
+INSERT INTO Publicacion (id_usuario, id_categoria, titulo, descripcion, precio, stock, estado)
+VALUES
+    (2, 1, 'Smartphone', 'Smartphone de última generación con excelentes características.', 299.99, 50, 'Activa'),
+    (2, 2, 'T-Shirt', 'Camiseta de algodón ideal para el verano.', 19.99, 200, 'Activa'),
+    (2, 3, 'Cafetera', 'Cafetera compacta con capacidad para 1.5 litros.', 49.99, 30, 'Activa'),
+    (3, 1, 'Laptop', 'Laptop portátil con procesador Intel i7, 16GB RAM y SSD de 512GB.', 999.99, 15, 'Activa'),
+    (4, 2, 'Chaqueta de Cuero', 'Chaqueta de cuero auténtico, ideal para invierno.', 89.99, 100, 'Activa'),
+    (5, 4, 'Silla de Oficina', 'Silla ergonómica perfecta para largas horas de trabajo.', 120.00, 25, 'Pausada'),
+    (6, 6, 'Pelota de Fútbol', 'Pelota profesional aprobada por FIFA.', 15.00, 150, 'Activa'),
+    (7, 8, 'Libro: Cien años de soledad', 'Novela clásica de Gabriel García Márquez.', 12.50, 200, 'Activa'),
+    (8, 9, 'Crema antiarrugas', 'Crema avanzada para el cuidado de la piel.', 45.00, 80, 'Activa'),
+    (9, 10, 'Neumáticos', 'Neumáticos de alta resistencia para cualquier vehículo.', 85.00, 50, 'Finalizada');
+
+	
 INSERT INTO Venta (id_comprador, estado, monto)
 VALUES
     (1, 'En curso', 319.98),   -- Juan compra un Smartphone y una T-Shirt
