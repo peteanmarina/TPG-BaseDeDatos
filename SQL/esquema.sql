@@ -24,7 +24,6 @@ CREATE TABLE Producto (
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT NOT NULL,
     precio DECIMAL(10,2) NOT NULL,
-    stock INT UNSIGNED NOT NULL,
     modelo VARCHAR(100) NOT NULL,
     marca VARCHAR(50),
     color VARCHAR(20),
