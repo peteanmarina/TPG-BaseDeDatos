@@ -1,23 +1,23 @@
+-- Borrar Roles
+DROP ROLE IF EXISTS Administrador;
+DROP ROLE IF EXISTS Vendedor;
+DROP ROLE IF EXISTS Comprador;
+
 -- Crear Roles
 CREATE ROLE Administrador;
 CREATE ROLE Vendedor;
 CREATE ROLE Comprador;
 
--- Asignación de Privilegios a los Roles
-
--- Administrador: tiene todos los privilegios sobre la base de datos.
+-- Administrador:
 GRANT ALL PRIVILEGES ON *.* TO Administrador WITH GRANT OPTION;
 
+-- Quitarle los permisos a vendedor y comprador
 REVOKE ALL PRIVILEGES ON *.* FROM 'Vendedor';
 REVOKE ALL PRIVILEGES ON *.* FROM 'Comprador';
 FLUSH PRIVILEGES;
 
--- El Vendedor puede realizar operaciones sobre la tabla Publicación y CategoríaPublicación
-GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Publicacion TO Vendedor;
-GRANT SELECT, INSERT, UPDATE ON TiendaOnline.CategoriaPublicacion TO Vendedor;
-
--- Vista para compradores que muestra publicaciones con información relevante
-CREATE VIEW VistaPublicacionComprador AS
+-- Vista reducida de las publicaciones
+CREATE VIEW VistaPublicacion AS
 SELECT titulo, precio, descripcion, stock
 FROM TiendaOnline.Publicacion;
 
@@ -26,50 +26,39 @@ CREATE VIEW VistaEnvioComprador AS
 SELECT tipo_envio, estado
 FROM TiendaOnline.DetalleEnvio;
 
--- Permitir a compradores ver publicaciones
-GRANT SELECT ON TiendaOnline.VistaPublicacionComprador TO Comprador;
+-- Vendedor
+GRANT SELECT, INSERT, UPDATE ON TiendaOnline.CategoriaProducto TO Vendedor;
+GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Categoria TO Vendedor;
+GRANT SELECT, INSERT, UPDATE ON TiendaOnline.VistaPublicacion TO Vendedor;
 
--- Permitir que compradores puedan comprar
+-- Comprador
+GRANT SELECT ON TiendaOnline.VistaPublicacion TO Comprador;
 GRANT INSERT, UPDATE ON TiendaOnline.Venta TO Comprador;
-
--- Permitir que compradores puedan ver y actualizar estados de envíos
+GRANT INSERT, UPDATE ON TiendaOnline.Detalle TO Comprador;
 GRANT SELECT, UPDATE ON TiendaOnline.VistaEnvioComprador TO Comprador;
-
--- Permitir a compradores ver los productos
-GRANT SELECT ON TiendaOnline.VistaProductoComprador TO Comprador;
-
--- Permitir que el Comprador oferte
-GRANT INSERT ON TiendaOnline.Oferta TO Comprador;
-
--- Permitir al comprador comprar
 GRANT INSERT, UPDATE ON TiendaOnline.Venta TO Comprador;
-
--- Permitir que el Comprador vea y actualice envios
-GRANT SELECT, UPDATE ON TiendaOnline.VistaEnvioComprador TO Comprador;
+GRANT SELECT ON TiendaOnline.Envio TO Comprador;
 
 -- Crear los usuarios
-CREATE USER 'admin'@'%' IDENTIFIED BY 'clave_admin';
-CREATE USER 'vendedor'@'%' IDENTIFIED BY 'clave_vendedor';
-CREATE USER 'comprador'@'%' IDENTIFIED BY 'clave_comprador';
-
--- Asignar los roles a los usuarios
-GRANT Administrador TO 'admin'@'%';
-GRANT Vendedor TO 'vendedor'@'%';
-GRANT Comprador TO 'comprador'@'%';
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'clave_admin';
+CREATE USER 'vendedor'@'localhost' IDENTIFIED BY 'clave_vendedor';
+CREATE USER 'comprador'@'localhost' IDENTIFIED BY 'clave_comprador';
 
 -- Para testear
 GRANT Vendedor TO 'root'@'localhost';
 GRANT Comprador TO 'root'@'localhost';
 GRANT Administrador TO 'root'@'localhost';
 
+GRANT Vendedor TO 'vendedor'@'localhost';
+GRANT Comprador TO 'comprador'@'localhost';
+GRANT Administrador TO 'admin'@'localhost';
 
 -- Establecer los roles predeterminados para los usuarios
-SET DEFAULT ROLE Administrador TO 'admin'@'%';
-SET DEFAULT ROLE Vendedor TO 'vendedor'@'%';
-SET DEFAULT ROLE Comprador TO 'comprador'@'%';
-
+SET DEFAULT ROLE Administrador TO 'admin'@'localhost';
+SET DEFAULT ROLE Vendedor TO 'vendedor'@'localhost';
+SET DEFAULT ROLE Comprador TO 'comprador'@'localhost';
 
 -- Ver los roles asignados a los usuarios
-SHOW GRANTS FOR 'admin'@'%';
-SHOW GRANTS FOR 'vendedor'@'%';
-SHOW GRANTS FOR 'comprador'@'%';
+SHOW GRANTS FOR 'admin'@'localhost';
+SHOW GRANTS FOR 'vendedor'@'localhost';
+SHOW GRANTS FOR 'comprador'@'localhost';

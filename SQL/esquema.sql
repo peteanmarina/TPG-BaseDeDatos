@@ -27,7 +27,6 @@ CREATE TABLE Producto (
     garantia VARCHAR(100)
 );
 
-
 CREATE TABLE Categoria (
     id_categoria BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre_categoria VARCHAR(50) NOT NULL
@@ -67,7 +66,6 @@ CREATE TABLE Venta (
     id_venta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_comprador BIGINT UNSIGNED,  
 	estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
-    monto DECIMAL(10, 2) NOT NULL CHECK (monto > 0),
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario)
 );

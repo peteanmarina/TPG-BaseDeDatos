@@ -81,15 +81,15 @@ INSERT INTO Envio (fecha, estado_envio, ubicacion_actual) VALUES
 ('2024-11-24 08:30:00', 'Pendiente', 'Almacén 1');
 
 -- Inserción de ventas
-INSERT INTO Venta (id_comprador, estado, monto) VALUES
-(3, 'En curso', 850.00),
-(4, 'Concretada', 1200.00),
-(5, 'En curso', 1350.00),
-(6, 'Concretada', 600.00),
-(7, 'En curso', 750.00),
-(8, 'Concretada', 1100.00),
-(9, 'En curso', 400.00),
-(10, 'Concretada', 500.00);
+INSERT INTO Venta (id_comprador, estado) VALUES
+(3, 'En curso'),
+(4, 'Concretada'),
+(5, 'En curso'),
+(6, 'Concretada'),
+(7, 'En curso'),
+(8, 'Concretada'),
+(9, 'En curso'),
+(10, 'Concretada');
 
 -- Inserción de detalles de venta
 INSERT INTO Detalle (id_venta, id_publicacion, cantidad, precioFacturado) VALUES

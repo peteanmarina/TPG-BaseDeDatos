@@ -1,26 +1,35 @@
 -- Listar todos los productos de la plataforma
 SELECT * FROM TiendaOnline.Producto;
 
--- Listar productos de la plataforma por categoría (ejemplo: "Electrónica")
-SELECT * FROM TiendaOnline.Producto
-WHERE id_categoria = (SELECT id_categoria FROM TiendaOnline.Categoria WHERE nombre_categoria = 'Electrónica');
+-- Listar productos de la plataforma por categoría
+SELECT * 
+FROM TiendaOnline.Producto p, TiendaOnline.CategoriaProducto cp, TiendaOnline.Categoria c
+WHERE c.id_categoria = cp.id_categoria
+AND p.id_producto = cp.id_producto
+AND c.nombre_categoria = 'Tecnología';
 
--- Crear una publicación para vender (ejemplo: Publicar un producto de "Laptop")
-INSERT INTO TiendaOnline.Producto (id_vendedor, nombre, precio, id_categoria, descripcion, stock)
-VALUES (1, 'Laptop HP', 500.00, (SELECT id_categoria FROM TiendaOnline.Categoria WHERE nombre_categoria = 'Electrónica'), 'Laptop HP con 8GB RAM', 10);
+-- Crear una publicación para vender
+INSERT INTO TiendaOnline.Publicacion (id_vendedor, id_producto, titulo, descripcion, precio, stock)
+VALUES (2, 1, 'Laptop HP NUEVA', 'Laptop muy linda', 500000.00, 2);
 
--- Actualizar una publicación de venta (ejemplo: Cambiar el precio de la "Laptop HP" a 450.00)
-UPDATE TiendaOnline.Producto
-SET precio = 450.00
-WHERE nombre = 'Laptop HP';
+-- Actualizar una publicación de venta
+UPDATE TiendaOnline.Publicacion
+SET precio = 4500.00
+WHERE id_publicacion = 11;
 
--- Realizar una compra (ejemplo: Comprar un producto)
-INSERT INTO TiendaOnline.Venta (id_comprador, estado, monto, fecha)
-VALUES (2, 'En curso', 450.00, NOW());
+-- Realizar una compra (Creo la venta (El monto se calcula con el detalle))
+INSERT INTO TiendaOnline.Venta (id_comprador) 
+VALUES (2);
+-- (Agrego productos a la venta)
+INSERT INTO TiendaOnline.Detalle (id_venta, id_publicacion, cantidad, precioFacturado) 
+VALUES ((SELECT MAX(id_venta) FROM Venta), 11, 1, 4500.00);
 
--- Guardar un envío (ejemplo: Enviar una compra)
-INSERT INTO TiendaOnline.Envio (fecha, estado_envio, ubicacion_actual)
-VALUES (NOW(), 'Pendiente', 'Almacén Central');
+-- Guardar un envío
+INSERT INTO TiendaOnline.Envio (fecha, ubicacion_actual)
+VALUES ('2024-12-12', 'Almacén Central');
+
+INSERT INTO TiendaOnline.DetalleEnvio (nro_envio, id_venta, tipo_envio)
+VALUES ((SELECT MAX(nro_envio) FROM Envio), 3, 'Domicilio'), ((SELECT MAX(nro_envio) FROM Envio), 5, 'Punto entrega');
 
 -- Cancelar una compra (ejemplo: Cancelar la compra de ID 1)
 UPDATE TiendaOnline.Venta
@@ -30,18 +39,34 @@ WHERE id_venta = 1;
 -- Cancelar un envío (ejemplo: Cancelar el envío de ID 1)
 UPDATE TiendaOnline.Envio
 SET estado_envio = 'Cancelado'
-WHERE nro_envio = 1;
+WHERE nro_envio = 5;
 
 -- Ver reputaciones (ejemplo para un vendedor y un comprador)
-SELECT nombre, reputacion_vendedor FROM TiendaOnline.Usuario WHERE id_usuario = 1; -- Reputación del vendedor
-SELECT nombre, reputacion_comprador FROM TiendaOnline.Usuario WHERE id_usuario = 2; -- Reputación del comprador
+
+SELECT nombre, reputacion AS reputacionVendedor
+FROM UsuarioRol r, Usuario u
+WHERE r.id_usuario = u.id_usuario
+AND rol= 'Vendedor'
+LIMIT 1;
+
+SELECT nombre, reputacion AS reputacionComprador
+FROM UsuarioRol r, Usuario u
+WHERE r.id_usuario = u.id_usuario
+AND rol= 'Comprador'
+LIMIT 1;
 
 -- Contabilizar la cantidad de ventas de la plataforma para un rango de fechas (ejemplo: del 2024-01-01 al 2024-12-31)
-SELECT COUNT(*) AS cantidad_ventas
+
+SELECT COUNT(*) AS cantidadVentas
 FROM TiendaOnline.Venta
 WHERE fecha BETWEEN '2024-01-01' AND '2024-12-31';
 
 -- Contabilizar el valor total de ventas de la plataforma para un rango de fechas (ejemplo: del 2024-01-01 al 2024-12-31)
-SELECT SUM(monto) AS valor_total_ventas
-FROM TiendaOnline.Venta
-WHERE fecha BETWEEN '2024-01-01' AND '2024-12-31';
+
+SELECT SUM(valor) AS valorTotalVentas
+FROM (
+SELECT cantidad * precioFacturado AS valor
+FROM TiendaOnline.Detalle d, Venta v
+WHERE d.id_venta = v.id_venta
+AND fecha BETWEEN '2024-01-01' AND '2024-12-31'
+AND v.estado = 'Concretada') AS t;
