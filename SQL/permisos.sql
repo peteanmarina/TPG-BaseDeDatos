@@ -8,26 +8,32 @@ CREATE ROLE Comprador;
 -- Administrador: tiene todos los privilegios sobre la base de datos.
 GRANT ALL PRIVILEGES ON *.* TO Administrador WITH GRANT OPTION;
 
--- Vendedor: puede realizar operaciones sobre la tabla Producto (modificar productos)
-GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Producto TO Vendedor;
-GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Categoria TO Vendedor;
+REVOKE ALL PRIVILEGES ON *.* FROM 'Vendedor';
+REVOKE ALL PRIVILEGES ON *.* FROM 'Comprador';
+FLUSH PRIVILEGES;
 
--- Vistas para los vendedores
-CREATE VIEW VistaProductoVendedor AS
-SELECT id_producto, nombre, descripcion, precio, stock, id_categoria
-FROM TiendaOnline.Producto;
+-- El Vendedor puede realizar operaciones sobre la tabla Publicación y CategoríaPublicación
+GRANT SELECT, INSERT, UPDATE ON TiendaOnline.Publicacion TO Vendedor;
+GRANT SELECT, INSERT, UPDATE ON TiendaOnline.CategoriaPublicacion TO Vendedor;
 
--- Vistas para los compradores
-CREATE VIEW VistaProductoComprador AS
-SELECT nombre, precio, descripcion
-FROM TiendaOnline.Producto;
+-- Vista para compradores que muestra publicaciones con información relevante
+CREATE VIEW VistaPublicacionComprador AS
+SELECT titulo, precio, descripcion, stock
+FROM TiendaOnline.Publicacion;
 
+-- Vista para compradores que muestra detalles de envíos
 CREATE VIEW VistaEnvioComprador AS
 SELECT tipo_envio, estado
 FROM TiendaOnline.DetalleEnvio;
 
--- Asignar permisos a los Vendedores sobre la vista
-GRANT SELECT, INSERT, UPDATE ON TiendaOnline.VistaProductoVendedor TO Vendedor;
+-- Permitir a compradores ver publicaciones
+GRANT SELECT ON TiendaOnline.VistaPublicacionComprador TO Comprador;
+
+-- Permitir que compradores puedan comprar
+GRANT INSERT, UPDATE ON TiendaOnline.Venta TO Comprador;
+
+-- Permitir que compradores puedan ver y actualizar estados de envíos
+GRANT SELECT, UPDATE ON TiendaOnline.VistaEnvioComprador TO Comprador;
 
 -- Permitir a compradores ver los productos
 GRANT SELECT ON TiendaOnline.VistaProductoComprador TO Comprador;
@@ -51,7 +57,19 @@ GRANT Administrador TO 'admin'@'%';
 GRANT Vendedor TO 'vendedor'@'%';
 GRANT Comprador TO 'comprador'@'%';
 
+-- Para testear
+GRANT Vendedor TO 'root'@'localhost';
+GRANT Comprador TO 'root'@'localhost';
+GRANT Administrador TO 'root'@'localhost';
+
+
 -- Establecer los roles predeterminados para los usuarios
 SET DEFAULT ROLE Administrador TO 'admin'@'%';
 SET DEFAULT ROLE Vendedor TO 'vendedor'@'%';
 SET DEFAULT ROLE Comprador TO 'comprador'@'%';
+
+
+-- Ver los roles asignados a los usuarios
+SHOW GRANTS FOR 'admin'@'%';
+SHOW GRANTS FOR 'vendedor'@'%';
+SHOW GRANTS FOR 'comprador'@'%';

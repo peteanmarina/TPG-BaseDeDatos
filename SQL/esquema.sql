@@ -5,10 +5,7 @@ USE TiendaOnline;
 CREATE TABLE Usuario (
     id_usuario BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,  
     nombre VARCHAR(100) NOT NULL,
-    email VARCHAR(100) UNIQUE NOT NULL,
-    rol ENUM('Administrador', 'Vendedor', 'Comprador') NOT NULL,
-    reputacion_comprador INT DEFAULT 0 CHECK (reputacion_comprador >= 0),
-    reputacion_vendedor INT DEFAULT 0 CHECK (reputacion_vendedor >= 0)
+    email VARCHAR(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE UsuarioRol(
@@ -23,7 +20,6 @@ CREATE TABLE Producto (
     id_producto BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nombre VARCHAR(100) NOT NULL,
     descripcion TEXT NOT NULL,
-    precio DECIMAL(10,2) NOT NULL,
     modelo VARCHAR(100) NOT NULL,
     marca VARCHAR(50),
     color VARCHAR(20),
@@ -45,24 +41,18 @@ CREATE TABLE CategoriaProducto (
     FOREIGN KEY (id_categoria) REFERENCES Categoria(id_categoria)
 );
 
-CREATE TABLE Configuracion (
-    id_configuracion BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    clave VARCHAR(50) UNIQUE NOT NULL,
-    valor DECIMAL(10, 2) NOT NULL
-);
-
-INSERT INTO Configuracion (clave, valor) VALUES ('precio_minimo', 10.00);
-
 CREATE TABLE Publicacion (
     id_publicacion BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_vendedor BIGINT UNSIGNED,
+	id_producto BIGINT UNSIGNED,
     titulo VARCHAR(255) NOT NULL,
     descripcion TEXT,
-    precio DECIMAL(10, 2) NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL CHECK (precio > 83),
     stock INT DEFAULT 1,
     fecha_publicacion DATETIME DEFAULT CURRENT_TIMESTAMP, 
     estado ENUM('Activa', 'Pausada', 'Finalizada') DEFAULT 'Activa',
-    FOREIGN KEY (id_vendedor) REFERENCES Usuario(id_usuario)
+    FOREIGN KEY (id_vendedor) REFERENCES Usuario(id_usuario),
+	FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
 );
 
 
@@ -76,11 +66,9 @@ CREATE TABLE Envio (
 CREATE TABLE Venta (
     id_venta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     id_comprador BIGINT UNSIGNED,  
-	id_publicacion BIGINT UNSIGNED,
 	estado ENUM('Concretada', 'Cancelada', 'En curso') DEFAULT 'En curso',
     monto DECIMAL(10, 2) NOT NULL CHECK (monto > 0),
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (id_publicacion) REFERENCES Publicacion(id_publicacion),
 	FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario)
 );
 
@@ -109,17 +97,6 @@ CREATE TABLE PagoVenta (
     estado_pago ENUM('Pendiente', 'Pagado', 'Reembolsado') DEFAULT 'Pendiente',
     fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     metodo_pago ENUM('Efectivo', 'Transferencia', 'Credito', 'Debito') NOT NULL
-);
-
-CREATE TABLE Oferta (
-    id_oferta BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    id_comprador BIGINT UNSIGNED,
-    id_producto BIGINT UNSIGNED,
-    precio_ofrecido DECIMAL(10, 2) CHECK (precio_ofrecido > 0),
-    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    estado ENUM('Pendiente', 'Aceptada', 'Rechazada') DEFAULT 'Pendiente',
-    FOREIGN KEY (id_comprador) REFERENCES Usuario(id_usuario),
-    FOREIGN KEY (id_producto) REFERENCES Producto(id_producto)
 );
 
 DELIMITER $$
@@ -169,37 +146,5 @@ BEGIN
         AND rol = 'Comprador';
     END IF;
 END$$
-
-DELIMITER $$
-
-CREATE TRIGGER validar_precio
-BEFORE INSERT ON Producto
-FOR EACH ROW
-BEGIN
-    DECLARE precio_min DECIMAL(10, 2);
-
-    SELECT valor INTO precio_min FROM Configuracion WHERE clave = 'precio_minimo';
-
-    IF NEW.precio < precio_min THEN
-        SIGNAL SQLSTATE '45000'
-        SET MESSAGE_TEXT = 'El precio debe ser mayor al valor mínimo configurado';
-    END IF;
-END$$
-
-DELIMITER ;
-
-
-DELIMITER //
-
-CREATE TRIGGER actualizar_precio_producto
-AFTER UPDATE ON Oferta
-FOR EACH ROW
-BEGIN
-    IF NEW.estado = 'Aceptada' AND OLD.estado != 'Aceptada' THEN
-        UPDATE Producto
-        SET precio = NEW.precio_ofrecido
-        WHERE id_producto = NEW.id_producto;
-    END IF;
-END //
 
 DELIMITER ;
