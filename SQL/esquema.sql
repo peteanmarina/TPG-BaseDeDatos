@@ -46,7 +46,7 @@ CREATE TABLE Publicacion (
 	id_producto BIGINT UNSIGNED,
     titulo VARCHAR(255) NOT NULL,
     descripcion TEXT,
-    precio DECIMAL(10, 2) NOT NULL CHECK (precio > 83),
+    precio DECIMAL(10, 2) NOT NULL CHECK (precio > 10),
     stock INT DEFAULT 1,
     fecha_publicacion DATETIME DEFAULT CURRENT_TIMESTAMP, 
     estado ENUM('Activa', 'Pausada', 'Finalizada') DEFAULT 'Activa',
