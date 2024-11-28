@@ -31,17 +31,17 @@ VALUES ('2024-12-12', 'Almacén Central');
 INSERT INTO TiendaOnline.DetalleEnvio (nro_envio, id_venta, tipo_envio)
 VALUES ((SELECT MAX(nro_envio) FROM Envio), 3, 'Domicilio'), ((SELECT MAX(nro_envio) FROM Envio), 5, 'Punto entrega');
 
--- Cancelar una compra (ejemplo: Cancelar la compra de ID 1)
+-- Cancelar una compra
 UPDATE TiendaOnline.Venta
 SET estado = 'Cancelada'
 WHERE id_venta = 1;
 
--- Cancelar un envío (ejemplo: Cancelar el envío de ID 1)
+-- Cancelar un envío
 UPDATE TiendaOnline.Envio
 SET estado_envio = 'Cancelado'
 WHERE nro_envio = 5;
 
--- Ver reputaciones (ejemplo para un vendedor y un comprador)
+-- Ver reputaciones (cargadas en el sistema)
 
 SELECT nombre, reputacion AS reputacionVendedor
 FROM UsuarioRol r, Usuario u
@@ -55,13 +55,13 @@ WHERE r.id_usuario = u.id_usuario
 AND rol= 'Comprador'
 LIMIT 1;
 
--- Contabilizar la cantidad de ventas de la plataforma para un rango de fechas (ejemplo: del 2024-01-01 al 2024-12-31)
+-- Contabilizar la cantidad de ventas de la plataforma para un rango de fechas
 
 SELECT COUNT(*) AS cantidadVentas
 FROM TiendaOnline.Venta
 WHERE fecha BETWEEN '2024-01-01' AND '2024-12-31';
 
--- Contabilizar el valor total de ventas de la plataforma para un rango de fechas (ejemplo: del 2024-01-01 al 2024-12-31)
+-- Contabilizar el valor total de ventas de la plataforma para un rango de fechas
 
 SELECT SUM(valor) AS valorTotalVentas
 FROM (
@@ -70,3 +70,25 @@ FROM TiendaOnline.Detalle d, Venta v
 WHERE d.id_venta = v.id_venta
 AND fecha BETWEEN '2024-01-01' AND '2024-12-31'
 AND v.estado = 'Concretada') AS t;
+
+--Reputaciones:
+
+-- Vendedor
+SELECT u.nombre AS vendedor, COALESCE(COUNT(*), 0) AS reputacion_vendedor
+FROM Usuario u
+LEFT JOIN Publicacion p ON u.id_usuario = p.id_vendedor
+LEFT JOIN Detalle d ON p.id_publicacion = d.id_publicacion
+LEFT JOIN Venta v ON d.id_venta = v.id_venta AND v.estado = 'Concretada'
+WHERE EXISTS (SELECT 1 FROM UsuarioRol ur WHERE ur.id_usuario = u.id_usuario AND ur.rol = 'Vendedor')
+GROUP BY u.id_usuario;
+
+
+-- Comprador
+
+SELECT u.nombre AS comprador, COALESCE(COUNT(DISTINCT v.id_venta), 0) AS reputacion_comprador
+FROM Usuario u
+LEFT JOIN Venta v ON v.id_comprador = u.id_usuario AND v.estado = 'Concretada'
+LEFT JOIN Detalle d ON v.id_venta = d.id_venta
+LEFT JOIN Publicacion p ON d.id_publicacion = p.id_publicacion
+WHERE EXISTS (SELECT 1 FROM UsuarioRol ur WHERE ur.id_usuario = u.id_usuario AND ur.rol = 'Comprador')
+GROUP BY u.id_usuario;
