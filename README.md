@@ -1,4 +1,4 @@
-# TPG-BaseDeDatos
+# TP-BaseDeDatos
 
 **Link público de diagramas**: [Diagrama en Miro](https://miro.com/app/board/uXjVLGXyIGE=/?share_link_id=831858988580)
 
